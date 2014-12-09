@@ -1,6 +1,7 @@
 SpaceShip milleniumFalcon;
 Star [] group;
-Asteroids [] rocks;//your variable declarations here
+ArrayList<Asteroids> rocks;
+ArrayList<Bullets> pew = new ArrayList<Bullets>(); //your variable declarations here
 public void setup() 
 {
   size(700,700);
@@ -11,10 +12,10 @@ public void setup()
     {
       group[i] = new Star();
     }
-  rocks = new Asteroids[10];
-  for(int r = 0; r < rocks.length; r++)
+  rocks = new ArrayList<Asteroids>();
+  for(int r = 0; r < 10; r++)
     {
-     rocks[r] = new Asteroids();
+      rocks.add(new Asteroids());
     }
   //your code here
 }
@@ -28,10 +29,33 @@ public void draw()
   {
     group[i].show();
   }
-  for(int r = 0; r < rocks. length;r++)
+  for(int r = 0;r < rocks.size();r++)
   {
-    rocks[r].show();
-    rocks[r].move();
+    rocks.get(r).show();
+    rocks.get(r).move();
+    if(dist((float)rocks.get(r).getX(),(float)rocks.get(r).getY(),(float)milleniumFalcon.getX(),(float)milleniumFalcon.getY() ) < 20)
+    {
+      rocks.remove(r);
+    }
+  }
+  for(int b = 0; b<pew.size();b++)
+  {
+    {
+      pew.get(b).show();
+      pew.get(b).move();
+    }
+  }
+  for(int r=0;r<rocks.size();r++)
+  {
+    for(int b=0;b<pew.size();b++)
+    {
+      if(dist(rocks.get(r).getX(),rocks.get(r).getY(),pew.get(b).getX(),pew.get(b).getY())<20)
+      {
+        rocks.remove(r);
+        pew.remove(b);
+        rocks.add(new Asteroids());
+      }
+    }
   }
   //your code here
 }
@@ -39,7 +63,7 @@ public void keyPressed()
 {
   if(key == 'w')
   {
-    milleniumFalcon.accelerate(5);
+    milleniumFalcon.accelerate(0.1);
     //milleniumFalcon.rotate();
   }
   else if(key == 'a')
@@ -49,9 +73,9 @@ public void keyPressed()
   }
   else if(key == 's')
   {
-    milleniumFalcon.accelerate(-5);
+    milleniumFalcon.accelerate(-0.1);
   }
-  else if(key == 'd')
+  else if(key == 'd' )
   {
     //milleniumFalcon.accelerate(0.1);
     milleniumFalcon.rotate((int)5);
@@ -59,6 +83,13 @@ public void keyPressed()
   else if(key == 'h')
   {
     milleniumFalcon.Hyperspace();
+  }
+  else if(key == ' ')
+  {
+  for(int b = 0; b<10;b++)
+    {
+      pew.add(new Bullets(milleniumFalcon));
+    }
   }
 }
 class Star
@@ -86,7 +117,7 @@ class SpaceShip extends Floater
     setY(350);
     setDirectionX(0); 
     setDirectionY(0);
-    setPointDirection(0);
+    setPointDirection(270);
     myColor = color(255,255,255);
     corners = 3;
     xCorners = new int[corners];
@@ -162,6 +193,43 @@ class Asteroids extends Floater
   public void setPointDirection(int degrees){myPointDirection = degrees;}
   public double getPointDirection(){return myPointDirection;}
   
+}
+class Bullets extends Floater
+{
+  private double dRadians;
+  public Bullets(SpaceShip ship)
+  {
+    myCenterX = ship.getX();
+    myCenterY = ship.getY();    
+    myPointDirection = ship.getPointDirection();
+    dRadians = myPointDirection*(Math.PI/180);
+    myDirectionX = 3*Math.cos(dRadians) + ship.getDirectionX();
+    myDirectionY = 3*Math.sin(dRadians) + ship.getDirectionY();
+  }
+  
+  public void setX(int x){myCenterX = x;}
+  public int getX(){return (int)myCenterX;}
+  public void setY(int y){myCenterY = y;}
+  public int getY(){return (int)myCenterY;}
+  public void setDirectionX(double x){myDirectionX = x;}
+  public double getDirectionX(){return myDirectionX;}
+  public void setDirectionY(double y){myDirectionY = y;}
+  public double getDirectionY(){return myDirectionY;}
+  public void setPointDirection(int degrees){myPointDirection = degrees;}
+  public double getPointDirection(){return myPointDirection;} 
+  
+  public void show()
+  {
+    noStroke();
+    fill(245,7,7);
+    ellipse((int)myCenterX,(int)myCenterY,5,5);
+  }
+    public void move()
+  {
+    //change the x and y coordinates by myDirectionX and myDirectionY       
+    myCenterX += myDirectionX;    
+    myCenterY += myDirectionY;
+  }
 }
 abstract class Floater //Do NOT modify the Floater class! Make changes in the SpaceShip class 
 {   
